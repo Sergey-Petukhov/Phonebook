@@ -85,7 +85,7 @@
                 $('.result').css('color', 'green');
             } else {
                 $.ajax({
-                    url: 'http://35.156.199.247:5000/contacts',
+                    url: 'http://API/contacts',
                     data: {
                         'where': '{"name":"' + user_name + '"}'
                     },
@@ -159,7 +159,7 @@
                 $('#user_phone').css('border', '1px solid red');
             } else {
                 $.ajax({
-                    url: 'http://35.156.199.247:5000/contacts',
+                    url: 'http://API/contacts',
                     data: {
                         'name': user_name,
                         'phone': user_phone
