@@ -69,40 +69,58 @@
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
+        function localStorageTest() {
+            try {
+                localStorage.length
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+
         function getContactList(page) {
-                $.ajax({
-                    url: 'http://API/contacts',
-                    data: {
-                        'page': page
-                    },
-                    type: 'GET',
-                    success: function(data) {
-                        if (data._items.length !== 0 && localStorage.length !== data._meta.total) {
-                            for (var i = 0; i < data._items.length; i++) {
-                                localStorage.setItem(data._items[i].name, data._items[i].phone)
-                            }
-                            if (typeof data._links.next !== "undefined") {
-                                getContactList(page + 1)
-                            }
+            $.ajax({
+                url: 'http://API/contacts',
+                data: {
+                    'page': page
+                },
+                type: 'GET',
+                success: function(data) {
+                    if (data._items.length !== 0 && localStorage.length !== data._meta.total) {
+                        for (var i = 0; i < data._items.length; i++) {
+                            localStorage.setItem(data._items[i].name, data._items[i].phone)
+                        }
+                        if (typeof data._links.next !== "undefined") {
+                            getContactList(page + 1)
                         }
                     }
-                });
+                }
+            });
         }
 
         function search() {
-            var user_name = $('#user_name').val()
+            var user_name = $('#user_name').val();
             $('#user_phone').val('');
             $('#errors_in_name').text('');
             $('#errors_in_phone').text('');
             $('#user_phone').css('border', '1px solid #eee');
             $('#user_name').css('border', '1px solid #eee');
             $('.result').text('');
+            var lsTest = localStorageTest();
+            var nameRegex = new RegExp(/^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s]*$/);
+            var checkName = nameRegex.test(user_name);
+            if (lsTest === true) {
+                    if (localStorage.getItem(user_name) !== null) {
+                        $('.result').text(user_name + ': ✆ ' + localStorage.getItem(user_name));
+                        $('.result').css('color', 'green');
+                    }
+            }
             if (user_name == '') {
                 $('#errors_in_name').text('❌ Please enter a name!');
                 $('#user_name').css('border', '1px solid red');
-            } else if (localStorage.getItem(user_name) !== null) {
-                $('.result').text(user_name + ': ✆ ' + localStorage.getItem(user_name));
-                $('.result').css('color', 'green');
+            } else if (!checkName) {
+                $('#errors_in_name').text('❌ You entered is not a name!');
+                $('#user_name').css('border', '1px solid red');
             } else {
                 $.ajax({
                     url: 'http://API/contacts',
@@ -115,7 +133,7 @@
                             $('.result').text('❌ Contact not found!');
                             $('.result').css('color', 'red');
                         } else {
-                            var user_phone = data._items[0]['phone']
+                            var user_phone = data._items[0]['phone'];
                             $('.result').text(user_name + ': ✆ ' + user_phone);
                             $('.result').css('color', 'green');
                             localStorage.setItem(user_name, user_phone)
@@ -130,12 +148,12 @@
         }
 
         function add_contact() {
-            var user_name = $('#user_name').val()
-            var user_phone = $('#user_phone').val()
+            var user_name = $('#user_name').val();
+            var user_phone = $('#user_phone').val();
             var nameRegex = new RegExp(/^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s]*$/);
             var phoneRegex = new RegExp(/^\s*[\+\(]?[\d]{1,5}[\-\s\/\)]?[\(\s]?[\d]{0,5}[\)]?[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}\s*$/);
-            var checkName = nameRegex.test(user_name)
-            var checkPhone = phoneRegex.test(user_phone)
+            var checkName = nameRegex.test(user_name);
+            var checkPhone = phoneRegex.test(user_phone);
             $('#errors_in_name').text('');
             $('#errors_in_phone').text('');
             $('#user_phone').css('border', '1px solid #eee');
@@ -218,7 +236,10 @@
             }
         }
         $(document).ready(function() {
-            getContactList(1);
+            var lsTest = localStorageTest();
+            if (lsTest === true) {
+                getContactList(1);
+            }
             $('.search').on('click', function() {
                 search();
             });
