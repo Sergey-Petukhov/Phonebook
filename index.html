@@ -69,6 +69,26 @@
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
+        function getContactList(page) {
+                $.ajax({
+                    url: 'http://API/contacts',
+                    data: {
+                        'page': page
+                    },
+                    type: 'GET',
+                    success: function(data) {
+                        if (data._items.length !== 0) {
+                            for (var i = 0; i < data._items.length; i++) {
+                                localStorage.setItem(data._items[i].name, data._items[i].phone)
+                            }
+                        }
+                        if (typeof data._links.next !== "undefined") {
+                            getContactList(page + 1)
+                        }
+                    }
+                });
+        }
+
         function search() {
             var user_name = $('#user_name').val()
             $('#user_phone').val('');
@@ -198,6 +218,7 @@
             }
         }
         $(document).ready(function() {
+            getContactList(1);
             $('.search').on('click', function() {
                 search();
             });
