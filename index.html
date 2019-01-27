@@ -125,7 +125,7 @@
         }
 
         function search() {
-            var user_name = $('#user_name').val();
+            var user_name = $('#user_name').val().trim();
             $('#user_phone').val('');
             $('#errors_in_name').text('');
             $('#errors_in_phone').text('');
@@ -155,8 +155,8 @@
         }
 
         function add_contact() {
-            var user_name = $('#user_name').val();
-            var user_phone = $('#user_phone').val();
+            var user_name = $('#user_name').val().trim();
+            var user_phone = $('#user_phone').val().trim();
             var nameRegex = new RegExp(/^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s]*$/);
             var phoneRegex = new RegExp(/^\s*[\+\(]?[\d]{1,5}[\-\s\/\)]?[\(\s]?[\d]{0,5}[\)]?[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}\s*$/);
             var checkName = nameRegex.test(user_name);
