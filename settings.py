@@ -1,4 +1,4 @@
-MONGO_URI = "mongodb://usen:password@mongo_adress/db_name"
+MONGO_URI = "mongodb://user:password@mongo_adress/db_name"
 
 RESOURCE_METHODS = ['GET', 'POST']
 ITEM_METHODS = ['GET']
