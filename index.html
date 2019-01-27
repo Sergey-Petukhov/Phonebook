@@ -98,6 +98,32 @@
             });
         }
 
+
+        function searchInAPI(user_name) {
+            $.ajax({
+                url: 'http://API/contacts',
+                data: {
+                    'where': '{"name":"' + user_name + '"}'
+                },
+                type: 'GET',
+                success: function(data) {
+                    if (data._items.length == 0) {
+                        $('.result').text('❌ Contact not found!');
+                        $('.result').css('color', 'red');
+                    } else {
+                        var user_phone = data._items[0]['phone'];
+                        $('.result').text(user_name + ': ✆ ' + user_phone);
+                        $('.result').css('color', 'green');
+                        localStorage.setItem(user_name, user_phone)
+                    }
+                },
+                error: function(data) {
+                    $('.result').text('❌ Connection Error!');
+                    $('.result').css('color', 'red');
+                }
+            });
+        }
+
         function search() {
             var user_name = $('#user_name').val();
             $('#user_phone').val('');
@@ -106,15 +132,8 @@
             $('#user_phone').css('border', '1px solid #eee');
             $('#user_name').css('border', '1px solid #eee');
             $('.result').text('');
-            var lsTest = localStorageTest();
             var nameRegex = new RegExp(/^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s]*$/);
             var checkName = nameRegex.test(user_name);
-            if (lsTest === true) {
-                    if (localStorage.getItem(user_name) !== null) {
-                        $('.result').text(user_name + ': ✆ ' + localStorage.getItem(user_name));
-                        $('.result').css('color', 'green');
-                    }
-            }
             if (user_name == '') {
                 $('#errors_in_name').text('❌ Please enter a name!');
                 $('#user_name').css('border', '1px solid red');
@@ -122,28 +141,16 @@
                 $('#errors_in_name').text('❌ You entered is not a name!');
                 $('#user_name').css('border', '1px solid red');
             } else {
-                $.ajax({
-                    url: 'http://API/contacts',
-                    data: {
-                        'where': '{"name":"' + user_name + '"}'
-                    },
-                    type: 'GET',
-                    success: function(data) {
-                        if (data._items.length == 0) {
-                            $('.result').text('❌ Contact not found!');
-                            $('.result').css('color', 'red');
-                        } else {
-                            var user_phone = data._items[0]['phone'];
-                            $('.result').text(user_name + ': ✆ ' + user_phone);
+                if (localStorageTest() === true) {
+                        if (localStorage.getItem(user_name) !== null) {
+                            $('.result').text(user_name + ': ✆ ' + localStorage.getItem(user_name));
                             $('.result').css('color', 'green');
-                            localStorage.setItem(user_name, user_phone)
+                        } else {
+                            searchInAPI(user_name);
                         }
-                    },
-                    error: function(data) {
-                        $('.result').text('❌ Connection Error!');
-                        $('.result').css('color', 'red');
-                    }
-                });
+                } else {
+                    searchInAPI(user_name);
+                }
             }
         }
 
@@ -154,11 +161,13 @@
             var phoneRegex = new RegExp(/^\s*[\+\(]?[\d]{1,5}[\-\s\/\)]?[\(\s]?[\d]{0,5}[\)]?[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}\s*$/);
             var checkName = nameRegex.test(user_name);
             var checkPhone = phoneRegex.test(user_phone);
+            var lsTest = localStorageTest();
             $('#errors_in_name').text('');
             $('#errors_in_phone').text('');
             $('#user_phone').css('border', '1px solid #eee');
             $('#user_name').css('border', '1px solid #eee');
             $('.result').text('');
+            
             if (user_name == '' && user_phone == '') {
                 $('#errors_in_name').text('❌ Please enter a name!');
                 $('#user_name').css('border', '1px solid red');
@@ -236,8 +245,7 @@
             }
         }
         $(document).ready(function() {
-            var lsTest = localStorageTest();
-            if (lsTest === true) {
+            if (localStorageTest() === true) {
                 getContactList(1);
             }
             $('.search').on('click', function() {
