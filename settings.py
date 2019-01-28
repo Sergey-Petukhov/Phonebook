@@ -1,4 +1,4 @@
-MONGO_URI = "mongodb://phonebook_user:jI32490bNwi45S90y3E5@127.0.0.1:27017/phonebook"
+MONGO_URI = "mongodb://user:password@mongo_adress/db_name"
 
 RESOURCE_METHODS = ['GET', 'POST']
 ITEM_METHODS = ['GET']
