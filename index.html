@@ -80,7 +80,7 @@
 
         function getContactList(page) {
             $.ajax({
-                url: 'http://35.156.199.247:5000/contacts',
+                url: 'http://API/contacts',
                 data: {
                     'page': page
                 },
@@ -101,7 +101,7 @@
 
         function searchInAPI(user_name) {
             $.ajax({
-                url: 'http://35.156.199.247:5000/contacts',
+                url: 'http://API/contacts',
                 data: {
                     'where': '{"name":"' + user_name + '"}'
                 },
@@ -173,7 +173,7 @@
 
         function addToAPI(user_name, user_phone) {
             $.ajax({
-                url: 'http://35.156.199.247:5000/contacts',
+                url: 'http://API/contacts',
                 data: {
                     'name': user_name,
                     'phone': user_phone
