@@ -87,7 +87,7 @@
                 type: 'GET',
                 success: function(data) {
                     if (data._items.length !== 0 && localStorage.length !== data._meta.total) {
-                        for (var i = 0; i < data._items.length; i++) {
+                        for (var i = 0, len = data._items.length; i < len; i++) {
                             localStorage.setItem(data._items[i].name, data._items[i].phone)
                         }
                         if (typeof data._links.next !== "undefined") {
@@ -158,8 +158,9 @@
                 $('#user_name').css('border', '1px solid red');
             } else {
                 if (localStorageTest() === true) {
-                    if (localStorage.getItem(user_name) !== null) {
-                        $('.result').text(user_name + ': ✆ ' + user_phone);
+                    var user_phone_in_cache = localStorage.getItem(user_name);
+                    if (user_phone_in_cache !== null) {
+                        $('.result').text(user_name + ': ✆ ' + user_phone_in_cache);
                         $('.result').css('color', 'green');
                     } else {
                         searchInAPI(user_name);
@@ -268,17 +269,26 @@
                 $('#user_phone').css('border', '1px solid red');
             } else {
                 if (localStorageTest() === true) {
-                    if (localStorage.getItem(user_name) !== null) {
+                    var user_phone_in_cache = localStorage.getItem(user_name);
+                    var user_name_in_cache = null;
+                    for (var i = 0, len = localStorage.length; i < len; i++) {
+                        var key = localStorage.key(i);
+                        var value = localStorage[key];
+                        if (value == user_phone) {
+                            user_name_in_cache = key;
+                        }
+                    }
+                    if (user_phone_in_cache !== null) {
                         $('#errors_in_name').text('❌ The entered name is already exists!');
                         $('#user_name').css('border', '1px solid red');
                         $('#user_phone').css('border', '1px solid red');
-                        $('.result').text(user_name + ': ✆ ' + user_phone);
+                        $('.result').text(user_name + ': ✆ ' + user_phone_in_cache);
                         $('.result').css('color', 'green');
-                    } else if (localStorage.key(user_phone) !== null) {
+                    } else if (user_name_in_cache !== null) {
                         $('#errors_in_phone').text('❌ The entered phone is already exists!');
                         $('#user_name').css('border', '1px solid red');
                         $('#user_phone').css('border', '1px solid red');
-                        $('.result').text(user_name + ': ✆ ' + user_phone);
+                        $('.result').text(user_name_in_cache + ': ✆ ' + user_phone);
                         $('.result').css('color', 'green');
                     } else {
                         addToAPI(user_name, user_phone);
