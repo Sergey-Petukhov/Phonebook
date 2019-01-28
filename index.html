@@ -80,7 +80,7 @@
 
         function getContactList(page) {
             $.ajax({
-                url: 'http://API/contacts',
+                url: 'http://35.156.199.247:5000/contacts',
                 data: {
                     'page': page
                 },
@@ -101,11 +101,13 @@
 
         function searchInAPI(user_name) {
             $.ajax({
-                url: 'http://API/contacts',
+                url: 'http://35.156.199.247:5000/contacts',
                 data: {
                     'where': '{"name":"' + user_name + '"}'
                 },
                 type: 'GET',
+                retryLimit : 3,
+                timeout: 5000,
                 success: function(data) {
                     if (data._items.length == 0) {
                         $('.result').text('❌ Contact not found!');
@@ -119,9 +121,21 @@
                         }
                     }
                 },
-                error: function(data) {
-                    $('.result').text('❌ Connection Error!');
-                    $('.result').css('color', 'red');
+                error: function(xhr, textStatus, errorThrown ) {
+                    if (textStatus == 'timeout' || textStatus == 'error') {
+                        this.retryLimit--;
+                        if (this.retryLimit) {
+                            $.ajax(this);
+                            return;
+                        }
+                    }
+                    if (xhr.status == 500) {
+                        $('.result').text('❌ Internal Server Error!');
+                        $('.result').css('color', 'red');
+                    } else {
+                        $('.result').text('❌ Connection Error!');
+                        $('.result').css('color', 'red');
+                    }
                 }
             });
         }
@@ -134,7 +148,7 @@
             $('#user_phone').css('border', '1px solid #eee');
             $('#user_name').css('border', '1px solid #eee');
             $('.result').text('');
-            var nameRegex = new RegExp(/^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s]*$/);
+            var nameRegex = new RegExp(/^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s\d\-\—]*$/);
             var checkName = nameRegex.test(user_name);
             if (user_name == '') {
                 $('#errors_in_name').text('❌ Please enter a name!');
@@ -158,7 +172,7 @@
 
         function addToAPI(user_name, user_phone) {
             $.ajax({
-                url: 'http://API/contacts',
+                url: 'http://35.156.199.247:5000/contacts',
                 data: {
                     'name': user_name,
                     'phone': user_phone
@@ -191,9 +205,21 @@
                         }
                     }
                 },
-                error: function(data) {
-                    $('.result').text('❌ Connection Error!');
-                    $('.result').css('color', 'red');
+                error: function(xhr, textStatus, errorThrown ) {
+                    if (textStatus == 'timeout' || textStatus == 'error') {
+                        this.retryLimit--;
+                        if (this.retryLimit) {
+                            $.ajax(this);
+                            return;
+                        }
+                    }
+                    if (xhr.status == 500) {
+                        $('.result').text('❌ Internal Server Error!');
+                        $('.result').css('color', 'red');
+                    } else {
+                        $('.result').text('❌ Connection Error!');
+                        $('.result').css('color', 'red');
+                    }
                 }
             });
         }
@@ -201,7 +227,7 @@
         function add_contact() {
             var user_name = $('#user_name').val().trim();
             var user_phone = $('#user_phone').val().trim();
-            var nameRegex = new RegExp(/^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s]*$/);
+            var nameRegex = new RegExp(/^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s\d\-\—]*$/);
             var phoneRegex = new RegExp(/^\s*[\+\(]?[\d]{1,5}[\-\s\/\)]?[\(\s]?[\d]{0,5}[\)]?[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}\s*$/);
             var checkName = nameRegex.test(user_name);
             var checkPhone = phoneRegex.test(user_phone);
@@ -243,7 +269,7 @@
             } else {
                 if (localStorageTest() === true) {
                     if (localStorage.getItem(user_name) !== null) {
-                        $('#errors_in_name').text('❌ The entered contact is already exists!');
+                        $('#errors_in_name').text('❌ The entered name is already exists!');
                         $('#user_name').css('border', '1px solid red');
                         $('#user_phone').css('border', '1px solid red');
                         $('.result').text(user_name + ': ✆ ' + localStorage.getItem(user_name));
