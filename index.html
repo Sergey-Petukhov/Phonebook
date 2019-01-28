@@ -80,7 +80,7 @@
 
         function getContactList(page) {
             $.ajax({
-                url: 'http://API/contacts',
+                url: 'http://35.156.199.247:5000/contacts',
                 data: {
                     'page': page
                 },
@@ -101,7 +101,7 @@
 
         function searchInAPI(user_name) {
             $.ajax({
-                url: 'http://API/contacts',
+                url: 'http://35.156.199.247:5000/contacts',
                 data: {
                     'where': '{"name":"' + user_name + '"}'
                 },
@@ -173,7 +173,7 @@
 
         function addToAPI(user_name, user_phone) {
             $.ajax({
-                url: 'http://API/contacts',
+                url: 'http://35.156.199.247:5000/contacts',
                 data: {
                     'name': user_name,
                     'phone': user_phone
@@ -273,7 +273,7 @@
                     var user_name_in_cache = null;
                     for (var i = 0, len = localStorage.length; i < len; i++) {
                         var key = localStorage.key(i);
-                        var value = localStorage[key];
+                        var value = localStorage.getItem(key);
                         if (value == user_phone) {
                             user_name_in_cache = key;
                         }
