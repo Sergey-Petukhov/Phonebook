@@ -121,7 +121,7 @@
                         }
                     }
                 },
-                error: function(xhr, textStatus, errorThrown ) {
+                error: function(xhr, textStatus, errorThrown) {
                     if (textStatus == 'timeout' || textStatus == 'error') {
                         this.retryLimit--;
                         if (this.retryLimit) {
@@ -206,7 +206,7 @@
                         }
                     }
                 },
-                error: function(xhr, textStatus, errorThrown ) {
+                error: function(xhr, textStatus, errorThrown) {
                     if (textStatus == 'timeout' || textStatus == 'error') {
                         this.retryLimit--;
                         if (this.retryLimit) {
