@@ -159,7 +159,7 @@
             } else {
                 if (localStorageTest() === true) {
                     if (localStorage.getItem(user_name) !== null) {
-                        $('.result').text(user_name + ': ✆ ' + localStorage.getItem(user_name));
+                        $('.result').text(user_name + ': ✆ ' + user_phone);
                         $('.result').css('color', 'green');
                     } else {
                         searchInAPI(user_name);
@@ -272,7 +272,13 @@
                         $('#errors_in_name').text('❌ The entered name is already exists!');
                         $('#user_name').css('border', '1px solid red');
                         $('#user_phone').css('border', '1px solid red');
-                        $('.result').text(user_name + ': ✆ ' + localStorage.getItem(user_name));
+                        $('.result').text(user_name + ': ✆ ' + user_phone);
+                        $('.result').css('color', 'green');
+                    } else if (localStorage.key(user_phone) !== null) {
+                        $('##errors_in_phone').text('❌ The entered phone is already exists!');
+                        $('#user_name').css('border', '1px solid red');
+                        $('#user_phone').css('border', '1px solid red');
+                        $('.result').text(user_name + ': ✆ ' + user_phone);
                         $('.result').css('color', 'green');
                     } else {
                         addToAPI(user_name, user_phone);
