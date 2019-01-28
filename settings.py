@@ -1,4 +1,4 @@
-MONGO_URI = "mongodb://user:password@mongo_address/db_name"
+MONGO_URI = "mongodb://phonebook_user:jI32490bNwi45S90y3E5@127.0.0.1:27017/phonebook"
 
 RESOURCE_METHODS = ['GET', 'POST']
 ITEM_METHODS = ['GET']
@@ -12,7 +12,7 @@ DOMAIN = {
         'schema': {
             'name': {
                 'type': 'string',
-		'regex': '^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s]*$',
+		'regex': '^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s\d\-\—]*$',
                 'minlength': 1,
                 'maxlength': 50,
                 'required': True,
