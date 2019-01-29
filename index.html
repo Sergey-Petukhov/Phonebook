@@ -57,7 +57,7 @@
 
 <body>
     <div class="wrap">
-        <div class='result'></div>
+        <div class='result'><noscript><p>Sorry, works only with enabled JavaScript :(</p></noscript></div>
         <div id='errors_in_name'>
         </div>
         <input placeholder="Name" type='text' name='user_name' id='user_name' />
@@ -88,7 +88,7 @@
                 success: function(data) {
                     if (data._items.length !== 0 && localStorage.length !== data._meta.total) {
                         for (var i = 0, len = data._items.length; i < len; i++) {
-                            localStorage.setItem(data._items[i].name, data._items[i].phone)
+                            localStorage.setItem(data._items[i].name_in_lowercase, JSON.stringify({name: data._items[i].name, phone: data._items[i].phone}));
                         }
                         if (typeof data._links.next !== "undefined") {
                             getContactList(page + 1)
@@ -99,11 +99,11 @@
         }
 
 
-        function searchInAPI(user_name) {
+        function searchInAPI(user_name_in_lowercase) {
             $.ajax({
                 url: 'http://API/contacts',
                 data: {
-                    'where': '{"name":"' + user_name + '"}'
+                    'where': '{"name_in_lowercase":"' + user_name_in_lowercase + '"}'
                 },
                 type: 'GET',
                 retryLimit : 3,
@@ -113,11 +113,12 @@
                         $('.result').text('❌ Contact not found!');
                         $('.result').css('color', 'red');
                     } else {
+                        var user_name = data._items[0]['name'];
                         var user_phone = data._items[0]['phone'];
                         $('.result').text(user_name + ': ✆ ' + user_phone);
                         $('.result').css('color', 'green');
                         if (localStorageTest() === true) {
-                            localStorage.setItem(user_name, user_phone)
+                            localStorage.setItem(user_name_in_lowercase, JSON.stringify({name: user_name, phone: user_phone}));
                         }
                     }
                 },
@@ -142,13 +143,14 @@
 
         function search() {
             var user_name = $('#user_name').val().trim();
+            var user_name_in_lowercase = user_name.toLowerCase();
             $('#user_phone').val('');
             $('#errors_in_name').text('');
             $('#errors_in_phone').text('');
             $('#user_phone').css('border', '1px solid #eee');
             $('#user_name').css('border', '1px solid #eee');
             $('.result').text('');
-            var nameRegex = new RegExp(/^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s\d\-\—]*$/);
+            var nameRegex = new RegExp(/^[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s\d\-\—]*$/);
             var checkName = nameRegex.test(user_name);
             if (user_name == '') {
                 $('#errors_in_name').text('❌ Please enter a name!');
@@ -158,24 +160,26 @@
                 $('#user_name').css('border', '1px solid red');
             } else {
                 if (localStorageTest() === true) {
-                    var user_phone_in_cache = localStorage.getItem(user_name);
-                    if (user_phone_in_cache !== null) {
-                        $('.result').text(user_name + ': ✆ ' + user_phone_in_cache);
+                    var user_in_cache = localStorage.getItem(user_name_in_lowercase);
+                    if (user_in_cache !== null) {
+                        var name_and_phone = JSON.parse(user_in_cache);
+                        $('.result').text(name_and_phone["name"] + ': ✆ ' + name_and_phone["phone"]);
                         $('.result').css('color', 'green');
                     } else {
-                        searchInAPI(user_name);
+                        searchInAPI(user_name_in_lowercase);
                     }
                 } else {
-                    searchInAPI(user_name);
+                    searchInAPI(user_name_in_lowercase);
                 }
             }
         }
 
-        function addToAPI(user_name, user_phone) {
+        function addToAPI(user_name, user_name_in_lowercase, user_phone) {
             $.ajax({
                 url: 'http://API/contacts',
                 data: {
                     'name': user_name,
+                    'name_in_lowercase': user_name_in_lowercase,
                     'phone': user_phone
                 },
                 type: 'POST',
@@ -184,16 +188,16 @@
                         $('.result').text('✓ Contact successfully added!');
                         $('.result').css('color', 'green');
                         if (localStorageTest() === true) { 
-                            localStorage.setItem(user_name, user_phone)
+                            localStorage.setItem(user_name_in_lowercase, JSON.stringify({name: user_name, phone: user_phone}));
                         }
                     } else {
                         $('.result').text('');
-                        if(typeof data._issues.name !== "undefined") {
+                        if(typeof data._issues.name_in_lowercase !== "undefined") {
                             $('#user_name').css('border', '1px solid red');
-                            if (!Array.isArray(data._issues.name)) {
-                                $('#errors_in_name').text('❌ — ' + data._issues.name);
+                            if (!Array.isArray(data._issues.name_in_lowercase)) {
+                                $('#errors_in_name').text('❌ — ' + data._issues.name_in_lowercase);
                             } else {
-                                $('#errors_in_name').html(data._issues.name.map(i => '❌ — ' + i).join('<br>'));
+                                $('#errors_in_name').html(data._issues.name_in_lowercase.map(i => '❌ — ' + i).join('<br>'));
                             }
                         }
                         if(typeof data._issues.phone !== "undefined") {
@@ -228,8 +232,9 @@
         function add_contact() {
             var user_name = $('#user_name').val().trim();
             var user_phone = $('#user_phone').val().trim();
-            var nameRegex = new RegExp(/^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s\d\-\—]*$/);
-            var phoneRegex = new RegExp(/^\s*[\+\(]?[\d]{1,5}[\-\s\/\)]?[\(\s]?[\d]{0,5}[\)]?[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}\s*$/);
+            var user_name_in_lowercase = user_name.toLowerCase();
+            var nameRegex = new RegExp(/^[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s\d\-\—]*$/);
+            var phoneRegex = new RegExp(/^[\+\(]?[\d]{1,5}[\-\s\/\)]?[\(\s]?[\d]{0,5}[\)]?[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}$/);
             var checkName = nameRegex.test(user_name);
             var checkPhone = phoneRegex.test(user_phone);
             $('#errors_in_name').text('');
@@ -269,32 +274,33 @@
                 $('#user_phone').css('border', '1px solid red');
             } else {
                 if (localStorageTest() === true) {
-                    var user_phone_in_cache = localStorage.getItem(user_name);
-                    var user_name_in_cache = null;
+                    var user_in_cache = localStorage.getItem(user_name_in_lowercase);
+                    var name_and_phone = JSON.parse(user_in_cache);
+                    var name_for_not_unique_phone = null;
                     for (var i = 0, len = localStorage.length; i < len; i++) {
                         var key = localStorage.key(i);
-                        var value = localStorage.getItem(key);
+                        var value = JSON.parse(localStorage.getItem(key)).phone;
                         if (value == user_phone) {
-                            user_name_in_cache = key;
+                            name_for_not_unique_phone = key;
                         }
                     }
-                    if (user_phone_in_cache !== null) {
+                    if (user_in_cache !== null) {
                         $('#errors_in_name').text('❌ The entered name is already exists!');
                         $('#user_name').css('border', '1px solid red');
                         $('#user_phone').css('border', '1px solid red');
-                        $('.result').text(user_name + ': ✆ ' + user_phone_in_cache);
+                        $('.result').text(name_and_phone["name"] + ': ✆ ' + name_and_phone["phone"]);
                         $('.result').css('color', 'green');
-                    } else if (user_name_in_cache !== null) {
+                    } else if (name_for_not_unique_phone  !== null) {
                         $('#errors_in_phone').text('❌ The entered phone is already exists!');
                         $('#user_name').css('border', '1px solid red');
                         $('#user_phone').css('border', '1px solid red');
-                        $('.result').text(user_name_in_cache + ': ✆ ' + user_phone);
+                        $('.result').text(name_for_not_unique_phone + ': ✆ ' + user_phone);
                         $('.result').css('color', 'green');
                     } else {
-                        addToAPI(user_name, user_phone);
+                        addToAPI(user_name, user_name_in_lowercase, user_phone);
                     }
                 } else {
-                    addToAPI(user_name, user_phone);
+                    addToAPI(user_name, user_name_in_lowercase, user_phone);
                 }
             }
         }
