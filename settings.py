@@ -12,7 +12,15 @@ DOMAIN = {
         'schema': {
             'name': {
                 'type': 'string',
-		'regex': '^\s*[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s\d\-\—]*$',
+                'regex': '^[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s\d\-\—]*$',
+                'minlength': 1,
+                'maxlength': 50,
+                'required': True,
+                'unique': True
+            },
+            'name_in_lowercase': {
+                'type': 'string',
+                'regex': '^[а-яА-ЯёЁa-zA-Z]+[а-яА-ЯёЁa-zA-Z\s\d\-\—]*$',
                 'minlength': 1,
                 'maxlength': 50,
                 'required': True,
@@ -20,11 +28,11 @@ DOMAIN = {
             },
             'phone': {
                 'type': 'string',
-		'regex': '^\s*[\+\(]?[\d]{1,5}[\-\s\/\)]?[\(\s]?[\d]{0,5}[\)]?[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}\s*$',
+                'regex': '^[\+\(]?[\d]{1,5}[\-\s\/\)]?[\(\s]?[\d]{0,5}[\)]?[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}[\-\s\/\.]?[\d]{0,5}$',
                 'minlength': 1,
                 'maxlength': 50,
                 'required': True,
-		'unique': True
+                'unique': True
             }
         }
     }
