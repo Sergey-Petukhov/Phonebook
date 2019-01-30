@@ -93,7 +93,16 @@
                         if (typeof data._links.next !== "undefined") {
                             getContactList(page + 1)
                         }
+                    },
+                error: function(xhr, textStatus, errorThrown) {
+                    if (textStatus == 'timeout' || textStatus == 'error') {
+                        this.retryLimit--;
+                        if (this.retryLimit) {
+                            $.ajax(this);
+                            return;
+                        }
                     }
+                }
                 }
             });
         }
