@@ -80,11 +80,13 @@
 
         function getContactList(page) {
             $.ajax({
-                url: 'http://API/contacts',
+                url: 'http://35.156.199.247:5000/contacts',
                 data: {
                     'page': page
                 },
                 type: 'GET',
+                retryLimit : 3,
+                timeout: 15000,
                 success: function(data) {
                     if (data._items.length !== 0 && localStorage.length !== data._meta.total) {
                         for (var i = 0, len = data._items.length; i < len; i++) {
@@ -93,7 +95,8 @@
                         if (typeof data._links.next !== "undefined") {
                             getContactList(page + 1)
                         }
-                    },
+                    }
+                },
                 error: function(xhr, textStatus, errorThrown) {
                     if (textStatus == 'timeout' || textStatus == 'error') {
                         this.retryLimit--;
@@ -102,7 +105,6 @@
                             return;
                         }
                     }
-                }
                 }
             });
         }
